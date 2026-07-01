@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — AI Chat Streaming</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+<div id="app-shell">
+
+    <!-- ── Sidebar ── -->
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <div>
+                    <div class="logo-title">AI Chat</div>
+                    <div class="logo-sub">Token Streaming · SSE</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/" class="nav-item active">
+                <span class="nav-icon">💬</span>
+                <span>المحادثة</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showAbout();return false;">
+                <span class="nav-icon">ℹ️</span>
+                <span>عن المشروع</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-info">
+            <div class="info-card">
+                <div class="info-title">📡 تقنية البث</div>
+                <div class="info-value">Server-Sent Events</div>
+            </div>
+            <div class="info-card">
+                <div class="info-title">🧠 النموذج</div>
+                <div class="info-value">AIChatSSE-v1</div>
+            </div>
+            <div class="info-card">
+                <div class="info-title">🎓 الجامعة</div>
+                <div class="info-value">جامعة إدلب — IT</div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <span>Advanced Web Dev · 2024</span>
+        </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main id="main-content">
+        @RenderBody()
+    </main>
+
+</div>
+
+<!-- About Modal -->
+<div id="about-modal" class="modal-overlay" onclick="hideAbout()" style="display:none">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="hideAbout()">✕</button>
+        <h2>🚀 AI Chat Token Streaming</h2>
+        <p>مشروع تطبيقي لمادة <strong>تطوير الويب المتقدم</strong></p>
+        <div class="about-grid">
+            <div class="about-item">
+                <div class="about-icon">📡</div>
+                <div><strong>تقنية البث</strong><br>Server-Sent Events (SSE)</div>
+            </div>
+            <div class="about-item">
+                <div class="about-icon">⚙️</div>
+                <div><strong>المنصة</strong><br>ASP.NET Core 8 MVC</div>
+            </div>
+            <div class="about-item">
+                <div class="about-icon">🧠</div>
+                <div><strong>الفكرة الذكية</strong><br>إيقاف البث + تحكم السرعة</div>
+            </div>
+            <div class="about-item">
+                <div class="about-icon">🔄</div>
+                <div><strong>الإعادة</strong><br>Auto-reconnect عند الانقطاع</div>
+            </div>
+        </div>
+        <div class="sse-flow">
+            <div class="flow-step">المستخدم يرسل سؤالاً</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">Controller يفتح SSE Stream</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">Tokens تُبث token بـtoken</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">EventSource يعرضها فوراً</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showAbout() { document.getElementById('about-modal').style.display='flex'; }
+function hideAbout() { document.getElementById('about-modal').style.display='none'; }
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

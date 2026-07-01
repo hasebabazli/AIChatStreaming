@@ -1,0 +1,8 @@
+.vs/
+bin/
+obj/
+*.user
+appsettings.Development.json
+*.db
+node_modules/
+*.mp4

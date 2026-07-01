@@ -1,0 +1,140 @@
+@{
+    ViewData["Title"] = "AI Chat";
+    var sessionId = ViewBag.SessionId as string ?? "";
+    var history = ViewBag.History as List<AIChatStreaming.Models.ChatMessage> ?? new();
+}
+
+<div id="chat-page">
+
+    <div id="topbar">
+        <div class="topbar-left">
+            <div id="status-dot" class="status-dot idle" title="حالة الاتصال"></div>
+            <span id="status-text">جاهز للدردشة</span>
+        </div>
+        <div class="topbar-center">
+            <span class="topbar-title">💬 AI Chat — Token Streaming</span>
+        </div>
+        <div class="topbar-right">
+            <div class="token-counter">
+                <span>🔤 الـTokens: </span>
+                <span id="token-count">0</span>
+            </div>
+            <button id="clear-btn" onclick="clearHistory()" title="مسح المحادثة">🗑️ مسح</button>
+        </div>
+    </div>
+
+    <div id="speed-bar">
+        <label>⚡ سرعة البث:</label>
+        <div class="speed-options">
+            <button class="speed-btn" data-speed="10" onclick="setSpeed(10)">سريع جداً</button>
+            <button class="speed-btn active" data-speed="30" onclick="setSpeed(30)">طبيعي</button>
+            <button class="speed-btn" data-speed="80" onclick="setSpeed(80)">بطيء</button>
+            <button class="speed-btn" data-speed="150" onclick="setSpeed(150)">بطيء جداً</button>
+        </div>
+        <div class="speed-slider-wrap">
+            <input type="range" id="speed-slider" min="5" max="200" value="30"
+                   oninput="onSpeedSlide(this.value)" />
+            <span id="speed-ms">30ms/token</span>
+        </div>
+    </div>
+
+   
+    <div id="messages-container">
+        <div id="messages">
+
+            <div class="msg-row assistant">
+                <div class="avatar ai-avatar">🤖</div>
+                <div class="msg-bubble assistant-bubble">
+                    <div class="msg-content">
+                        مرحباً! 👋 أنا مساعدك الذكي المدعوم بتقنية <strong>Server-Sent Events</strong>.<br><br>
+                        يمكنك أن ترى ردودي تظهر <em>كلمةً بكلمة</em> في الوقت الفعلي — تماماً كما تعمل ChatGPT و Claude! 🚀<br><br>
+                        جرّب أن تسألني عن: <strong>SSE</strong> · <strong>ASP.NET Core</strong> · <strong>WebSocket</strong> · <strong>الذكاء الاصطناعي</strong>
+                    </div>
+                    <div class="msg-meta">
+                        <span class="msg-time">الآن</span>
+                    </div>
+                </div>
+            </div>
+
+            @* *@
+            @foreach (var msg in history)
+            {
+                var isUser = msg.Role == "user";
+                <div class="msg-row @(isUser ? "user" : "assistant")">
+                    @if (!isUser)
+                    {
+                        <div class="avatar ai-avatar">🤖</div>
+                    }
+                    <div class="msg-bubble @(isUser ? "user-bubble" : "assistant-bubble")">
+                        <div class="msg-content">@msg.Content</div>
+                        <div class="msg-meta">
+                            <span class="msg-time">@msg.Timestamp.ToLocalTime().ToString("HH:mm")</span>
+                            @if (!isUser && msg.TokenCount > 0)
+                            {
+                                <span class="token-badge">@msg.TokenCount tokens</span>
+                            }
+                        </div>
+                    </div>
+                    @if (isUser)
+                    {
+                        <div class="avatar user-avatar">👤</div>
+                    }
+                </div>
+            }
+
+        </div>
+
+        
+        <div id="typing-indicator" style="display:none">
+            <div class="msg-row assistant">
+                <div class="avatar ai-avatar">🤖</div>
+                <div class="msg-bubble assistant-bubble typing-bubble">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="input-area">
+
+        <div id="prob-bar-wrap" style="display:none">
+            <div class="prob-label">🧠 احتمالية الـToken الحالي:</div>
+            <div class="prob-bar-bg">
+                <div id="prob-bar" class="prob-bar-fill"></div>
+                <span id="prob-value">0%</span>
+            </div>
+            <div id="current-token-display" class="current-token"></div>
+        </div>
+
+        <div class="input-row">
+            <textarea
+                id="message-input"
+                placeholder="اكتب سؤالك هنا... (Enter للإرسال، Shift+Enter لسطر جديد)"
+                rows="1"
+                maxlength="500"
+                onkeydown="handleKey(event)"
+                oninput="autoResize(this)"></textarea>
+
+            <div class="input-actions">
+                <button id="stop-btn" class="stop-btn" onclick="stopStream()" style="display:none" title="إيقاف البث">
+                    ⏹️ إيقاف
+                </button>
+                <button id="send-btn" class="send-btn" onclick="sendMessage()" title="إرسال (Enter)">
+                    إرسال ↑
+                </button>
+            </div>
+        </div>
+
+        <div id="char-count" class="char-count">0 / 500</div>
+    </div>
+
+</div>
+
+<input type="hidden" id="session-id" value="@sessionId" />
+
+@section Scripts {
+<script src="~/js/chat.js" asp-append-version="true"></script>
+}
